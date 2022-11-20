@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "CommonJS",
+    "rootDir": "./src",
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "stripInternal": true,
+    "allowUmdGlobalAccess": true
+  }
+}

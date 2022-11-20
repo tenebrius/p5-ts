@@ -1,0 +1,21 @@
+{
+  "name": "p5js-with-typescript",
+  "version": "1.0.0",
+  "description": "A template for a p5.js sketch using Typescript",
+  "scripts": {
+    "start": "tsc --skipLibCheck && node post-build.js",
+    "watch": "nodemon --ext ts --ignore ./dist"
+  },
+  "dependencies": {
+    "@types/p5": "^1.4.3",
+    "reload": "^3.2.0"
+  },
+  "devDependencies": {
+    "tsc-watch": "^5.0.3",
+    "typescript": "^4.9.3"
+  },
+  "keywords": [
+    "p5js",
+    "typescript"
+  ]
+}
