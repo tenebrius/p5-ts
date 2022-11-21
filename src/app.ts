@@ -1,6 +1,7 @@
-import { Vector } from 'p5'
-import { } from 'p5/global'
+import {Vector} from 'p5'
+import {} from 'p5/global'
 
+let running = true
 const Width = 600
 const density = 0.02
 const friction = 0.003
@@ -9,11 +10,21 @@ let boxes = []
 let entities: Entity[] = []
 let gravity: Vector;
 
+const setRunning = (state) => {
+    running = state
+}
+
 function setup() {
     createCanvas(Width, 400);
-    entities.push(new Entity(createVector(50, 50), false))
-    entities.push(new Entity(createVector(50, 120), true))
-    gravity = createVector(0, 0.01)
+    entities.push(new Entity(createVector(100, 50), 1, false))
+    entities.push(new Entity(createVector(125, 300), 2, true))
+    gravity = createVector(0.00, 0.01)
+    const u1 = createVector(1, 0)
+    const u2 = createVector(0, 0)
+    const m1 = 1
+    const m2 = 1
+    console.log(Vector.add(Vector.mult(u1, m1 - m2), Vector.mult(u2, 2 * m2)).div((m1 + m2)))
+    console.log(Vector.add(Vector.mult(u2, m2 - m1), Vector.mult(u1, 2 * m1)).div((m1 + m2)))
     // setTimeout(()=>{
     //     entity.applyForce(createVector(1,1))
     // })
@@ -54,9 +65,10 @@ class Entity {
     fixed = false
 
 
-    constructor(pos: Vector, fixed: boolean) {
+    constructor(pos: Vector, mass: number, fixed: boolean) {
         this.pos = pos;
         this.fixed = fixed
+        this.mass = mass
     }
 
     applyForce(force: Vector) {
@@ -71,7 +83,10 @@ class Entity {
     }
 
     draw() {
-        circle(this.pos.x-this.rad, this.pos.y-this.rad, this.rad*2)
+        let d = this.rad * 2;
+        circle(this.pos.x, this.pos.y, d)
+        circle(this.pos.x, this.pos.y, 2)
+        text(this.pos.x + "," + this.pos.y, this.pos.x, this.pos.y)
     }
 }
 
@@ -81,20 +96,44 @@ function applyGravity(entity: Entity) {
     }
 }
 
-function draw() {
-    background(220);
-    for (const entity of entities) {
-        entity.draw()
-        entity.tick()
-        applyGravity(entity)
+function resolveCollision(e1: Entity, e2: Entity) {
+    const u1 = e1.vel;
+    const u2 = e2.vel;
+    const m1 = e1.mass
+    const m2 = e2.mass
+    const v1 = Vector.add(Vector.mult(u1, m1 - m2), Vector.mult(u2, 2 * m2)).div((m1 + m2))
+    const v2 = Vector.add(Vector.mult(u2, m2 - m1), Vector.mult(u1, 2 * m1)).div((m1 + m2))
+    e1.vel = v1;
+    e2.vel = v2;
+}
 
-        for (const target of entities){
-            if (target !== entity) {
-                if (checkCollision(entity, target)) {
-                }
-            }
+function draw() {
+    if (running) {
+        background(220);
+
+        for (const entity of entities) {
+
+            entity.draw()
+            entity.tick()
+
+            applyGravity(entity)
+
+        }
+        const entity = entities[0]
+        const target = entities[1]
+
+        const dir = Vector.sub(target.pos, entity.pos)
+        const endPoint = Vector.add(entity.pos, dir)
+
+        console.log("line", dir, entity.pos, endPoint)
+        line(entity.pos.x, entity.pos.y, endPoint.x, endPoint.y)
+        if (checkCollision(entity, target)) {
+            // resolveCollision(entity, target)
+
+            running = false
         }
     }
+
 }
 
 //
