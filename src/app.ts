@@ -3,7 +3,7 @@ import {} from 'p5/global'
 
 let running = true
 const Width = 300
-const Height = 400
+const Height = 300
 const density = 0.02
 const friction = 0.003
 let isFiring = null
@@ -24,13 +24,13 @@ function getRandomColor() {
 }
 function setup() {
     createCanvas(Width, Height);
-    entities.push(new Entity(createVector(0, 20), createVector(3,0), 10, 'red'))
-    entities.push(new Entity(createVector(100, 20), createVector(0, 0), 10, 'blue'))
-    entities.push(new Entity(createVector(120, 20), createVector(2, 0), 10, 'yellow'))
-    // for (let i =0; i < 20; i++){
-    //     const color = getRandomColor()
-    //     entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2)), 10,  color))
-    // }
+    // entities.push(new Entity(createVector(0, 100), createVector(3,0), 100, 'red'))
+    // entities.push(new Entity(createVector(100, 100), createVector(0, 0), 10, 'blue'))
+    // entities.push(new Entity(createVector(120, 20), createVector(2, 0), 10, 'yellow'))
+    for (let i =0; i < 14; i++){
+        const color = getRandomColor()
+        entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2), random(-2, 2)), random(40, 100),  color))
+    }
     gravity = createVector(0.00, 0.5)
     // const u1 = createVector(1, 0)
     // const u2 = createVector(0, 0)
@@ -81,7 +81,7 @@ class Entity {
         this.pos = pos;
         this.mass = mass
         this.vel = vel
-        this.rad = TWO_PI/mass * 10
+        this.rad = TWO_PI * (mass/50)
         this.color = color
     }
 
@@ -104,7 +104,7 @@ class Entity {
         // text(this.pos.x + "," + this.pos.y, this.pos.x, this.pos.y)
         const momentum = Vector.mult(this.vel, this.mass)
         const endpoint = Vector.add(this.pos, momentum)
-        line(this.pos.x, this.pos.y, endpoint.x, endpoint.y)
+        // line(this.pos.x, this.pos.y, endpoint.x, endpoint.y)
         // text(momentum.x + "," + momentum.y, endpoint.x, endpoint.y)
     }
 }
@@ -121,7 +121,6 @@ let oldCol = new Date().getTime()
 function resolveCollision(e1: Entity, e2: Entity) {
     collisionCount = collisionCount + 1
     let newCol = new Date().getTime();
-    console.log(collisionCount, newCol - oldCol)
     oldCol = newCol
     let dir = Vector.sub(e1.pos, e2.pos)
     const dist = dir.copy()
@@ -134,13 +133,16 @@ function resolveCollision(e1: Entity, e2: Entity) {
     }
 
     // line(e1.pos.x, e1.pos.y, e1.pos.x + dir.x, e1.pos.y + dir.y)
-    const theta = dir.angleBetween(e1.vel)
+    const theta1 = dir.angleBetween(e1.vel)
+    const theta2 = Vector.mult(dir, -1).angleBetween(e2.vel)
     // console.log(theta)
     let momentum1 = Vector.mult(e1.vel, e1.mass);
     let momentum2 = Vector.mult(e2.vel, e2.mass);
-    let force = momentum1.mag() + momentum2.mag();
+
     // console.log("force", force)
-    const mag = abs(force * cos(theta))
+    const mag1 = momentum1.mag() * cos(theta1)
+    const mag2 = momentum2.mag() * cos(theta2)
+    const mag =mag1 + mag2
     // console.log("mag", mag)
 
     dir.setMag(mag)
@@ -149,6 +151,8 @@ function resolveCollision(e1: Entity, e2: Entity) {
     // console.log(dir)
     e1.applyForce(dir)
     e2.applyForce(Vector.mult(dir, -1))
+
+    console.log(degrees(e2.vel.angleBetween(e1.vel)))
     // const endpoint = Vector.add(e1.pos, dir)
     // stroke('red');
     // line(e1.pos.x, e1.pos.y, e1.pos.x + dir.x, e1.pos.y + dir.y)
@@ -169,17 +173,17 @@ function resolveCollision(e1: Entity, e2: Entity) {
 
 const wallCollision  =  (entity: Entity)=>{
     if (entity.pos.x  < 0){
-        entity.pos.x = Width + entity.pos.x
+        entity.pos.x = Width - entity.pos.x
     }else{
         if (entity.pos.x > Width){
-            entity.pos.x = Width - entity.pos.x
+            entity.pos.x = entity.pos.x - Width
         }
     }
     if (entity.pos.y  < 0){
-        entity.pos.y = Height + entity.pos.y
+        entity.pos.y = Height - entity.pos.y
     }else{
         if (entity.pos.y > Height){
-            entity.pos.y = Height - entity.pos.y
+            entity.pos.y = entity.pos.y - Height
         }
     }
 
@@ -189,7 +193,7 @@ const wallCollision  =  (entity: Entity)=>{
 function mouseClicked() {
     if (mouseX > 0 && mouseY > 0 && mouseX < Width && mouseY < Height) {
         if (isFiring) {
-            isFiring.vel = Vector.sub(isFiring.pos, firePos).mult(0.01)
+            isFiring.vel = Vector.sub(isFiring.pos, firePos).mult(0.05)
             isFiring = null
             firePos = null
         } else {
@@ -216,15 +220,18 @@ function draw() {
             line(x, 0, x, Height)
             stroke('black')
         }
+        let totMomemtum = createVector()
         for (const entity of entities) {
 
             entity.draw()
             entity.tick()
-            applyFriction(entity)
+            // applyFriction(entity)
             wallCollision(entity)
+            totMomemtum = totMomemtum.add(Vector.mult(entity.vel, 10))
             // applyGravity(entity)
-
         }
+        text(round(totMomemtum.x), 10, 10)
+        text(round(totMomemtum.y), 10, 50)
 
 
         // console.log("line", dir, entity.pos, endPoint)
@@ -244,7 +251,6 @@ function draw() {
                             // running = false
                         }
                     }else{
-                        console.log("skip check")
                     }
                 }
             }
