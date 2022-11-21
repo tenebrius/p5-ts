@@ -24,13 +24,14 @@ function getRandomColor() {
 }
 function setup() {
     createCanvas(Width, Height);
-    // entities.push(new Entity(createVector(0, 100), createVector(3,0), 100, 'red'))
-    // entities.push(new Entity(createVector(100, 100), createVector(0, 0), 10, 'blue'))
-    // entities.push(new Entity(createVector(120, 20), createVector(2, 0), 10, 'yellow'))
-    for (let i =0; i < 14; i++){
-        const color = getRandomColor()
-        entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2), random(-2, 2)), random(40, 100),  color))
-    }
+    entities.push(new Entity(createVector(50, 100), createVector(4,0), 1, 'red'))
+    entities.push(new Entity(createVector(100, 100), createVector(-2, 0), 1, 'blue'))
+    entities.push(new Entity(createVector(150, 100), createVector(-2, 0), 1, 'green'))
+    // // entities.push(new Entity(createVector(120, 20), createVector(2, 0), 10, 'yellow'))
+    // for (let i =0; i < 16; i++){
+    //     const color = getRandomColor()
+    //     entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2), random(-2, 2)), 70,  color))
+    // }
     gravity = createVector(0.00, 0.5)
     // const u1 = createVector(1, 0)
     // const u2 = createVector(0, 0)
@@ -81,7 +82,7 @@ class Entity {
         this.pos = pos;
         this.mass = mass
         this.vel = vel
-        this.rad = TWO_PI * (mass/50)
+        this.rad = 10//TWO_PI * (mass/50)
         this.color = color
     }
 
@@ -133,26 +134,34 @@ function resolveCollision(e1: Entity, e2: Entity) {
     }
 
     // line(e1.pos.x, e1.pos.y, e1.pos.x + dir.x, e1.pos.y + dir.y)
-    const theta1 = dir.angleBetween(e1.vel)
-    const theta2 = Vector.mult(dir, -1).angleBetween(e2.vel)
+    const theta = abs(dir.angleBetween(e1.vel)) % PI
+    // console.log(degrees(theta1), degrees(theta2))
     // console.log(theta)
+    const olde1Vel = e1.vel + "x"
+    const olde2Vel = e2.vel + "x"
     let momentum1 = Vector.mult(e1.vel, e1.mass);
     let momentum2 = Vector.mult(e2.vel, e2.mass);
-
+    const mTot = Vector.sub(momentum2, momentum1)
+    const force  = abs(mTot.mag() * cos(theta))
     // console.log("force", force)
-    const mag1 = momentum1.mag() * cos(theta1)
-    const mag2 = momentum2.mag() * cos(theta2)
-    const mag =mag1 + mag2
+    // const mag1 = abs(Vector.mult(momentum1, cos(theta1)).mag())
+    // const mag2 = abs(Vector.mult(momentum2 , cos(theta2)).mag())
     // console.log("mag", mag)
 
-    dir.setMag(mag)
+    dir.setMag(force)
     // console.log("dir", dir, dir.mag())
     // console.log("momentum", momentum)
     // console.log(dir)
+    console.log("----------------------")
+    let totalVelBefore = e1.vel.x + e2.vel.x;
+    console.log(e1.vel.x, e2.vel.x, totalVelBefore)
     e1.applyForce(dir)
     e2.applyForce(Vector.mult(dir, -1))
-
-    console.log(degrees(e2.vel.angleBetween(e1.vel)))
+    let totalVelAfter = e1.vel.x + e2.vel.x;
+    console.log(e1.vel.x, e2.vel.x, totalVelAfter)
+    if (round(totalVelAfter) != round(totalVelBefore)){
+        const f = 1
+    }
     // const endpoint = Vector.add(e1.pos, dir)
     // stroke('red');
     // line(e1.pos.x, e1.pos.y, e1.pos.x + dir.x, e1.pos.y + dir.y)
