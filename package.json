@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A template for a p5.js sketch using Typescript",
   "scripts": {
-    "start": "tsc --skipLibCheck && node post-build.js",
+    "start": "tsc --skipLibCheck && node post-build.js  || exit 1",
     "watch": "nodemon --ext ts --ignore ./dist || exit 1"
   },
   "dependencies": {
