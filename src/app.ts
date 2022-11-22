@@ -2,8 +2,8 @@ import {Vector} from 'p5'
 import {} from 'p5/global'
 
 let running = true
-const Width = 300
-const Height = 300
+const Width = 200
+const Height = 200
 const density = 0.02
 const friction = 0.003
 let isFiring = null
@@ -24,15 +24,15 @@ function getRandomColor() {
 }
 function setup() {
     createCanvas(Width, Height);
-    // entities.push(new Entity(createVector(50, 100), createVector(4,0), 1, 'red'))
-    // entities.push(new Entity(createVector(100, 100), createVector(-2, 0), 1, 'blue'))
-    // entities.push(new Entity(createVector(150, 100), createVector(-2, 0), 1, 'green'))
+    entities.push(new Entity(createVector(50, 100), createVector(5,5), 1, 'red'))
+    entities.push(new Entity(createVector(100, 100), createVector(-5, 5), 1, 'blue'))
+    entities.push(new Entity(createVector(150, 100), createVector(-5, -5), 1, 'green'))
     // // entities.push(new Entity(createVector(120, 20), createVector(2, 0), 10, 'yellow'))
-    for (let i =0; i < 16; i++){
-        const color = getRandomColor()
-        entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2), random(-2, 2)), 70,  color))
-    }
-    gravity = createVector(0.00, 0.5)
+    // for (let i =0; i < 16; i++){
+    //     const color = getRandomColor()
+    //     entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2), random(-2, 2)), 70,  color))
+    // }
+    // gravity = createVector(0.00, 0.5)
     // const u1 = createVector(1, 0)
     // const u2 = createVector(0, 0)
     // const m1 = 1
@@ -129,20 +129,25 @@ function resolveCollision(e1: Entity, e2: Entity) {
     const correctDist = e1.rad + e2.rad
     if (curDist < correctDist) {
         const errorDist = curDist - correctDist
+        console.log("errorDist" ,errorDist)
         e2.pos.add(dist.copy().setMag(errorDist/2))
         e1.pos.sub(dist.copy().setMag(errorDist/2))
     }
-
+    dir = Vector.sub(e1.pos, e2.pos)
     // line(e1.pos.x, e1.pos.y, e1.pos.x + dir.x, e1.pos.y + dir.y)
-    const theta = abs(dir.angleBetween(e1.vel)) % PI
+    const theta1 = abs(dir.angleBetween(e1.vel))
+    const theta2 = abs(dir.angleBetween(e2.vel))
     // console.log(degrees(theta1), degrees(theta2))
     // console.log(theta)
     const olde1Vel = e1.vel + "x"
     const olde2Vel = e2.vel + "x"
     let momentum1 = Vector.mult(e1.vel, e1.mass);
     let momentum2 = Vector.mult(e2.vel, e2.mass);
-    const mTot = Vector.sub(momentum2, momentum1)
-    const force  = abs(mTot.mag() * cos(theta))
+    const force1 = abs(momentum1.mag() * cos(theta1))
+    const force2 = abs(momentum2.mag() * cos(theta2))
+    const mTot = Vector.add(momentum2, momentum1)
+    // const force  = abs(mTot.mag() * cos(theta))
+    const force  = force1 + force2
     // console.log("force", force)
     // const mag1 = abs(Vector.mult(momentum1, cos(theta1)).mag())
     // const mag2 = abs(Vector.mult(momentum2 , cos(theta2)).mag())
@@ -152,13 +157,13 @@ function resolveCollision(e1: Entity, e2: Entity) {
     // console.log("dir", dir, dir.mag())
     // console.log("momentum", momentum)
     // console.log(dir)
-    console.log("----------------------")
-    let totalVelBefore = e1.vel.x + e2.vel.x;
-    console.log(e1.vel.x, e2.vel.x, totalVelBefore)
+    // console.log("----------------------")
+    let totalVelBefore = e1.vel.y + e2.vel.x;
+    // console.log(e1.vel.x, e2.vel.x, totalVelBefore)
     e1.applyForce(dir)
     e2.applyForce(Vector.mult(dir, -1))
-    let totalVelAfter = e1.vel.x + e2.vel.x;
-    console.log(e1.vel.x, e2.vel.x, totalVelAfter)
+    let totalVelAfter = e1.vel.y + e2.vel.x;
+    // console.log(e1.vel.x, e2.vel.x, totalVelAfter)
     if (round(totalVelAfter) != round(totalVelBefore)){
         const f = 1
     }
