@@ -24,14 +24,14 @@ function getRandomColor() {
 }
 function setup() {
     createCanvas(Width, Height);
-    entities.push(new Entity(createVector(50, 100), createVector(4,0), 1, 'red'))
-    entities.push(new Entity(createVector(100, 100), createVector(-2, 0), 1, 'blue'))
-    entities.push(new Entity(createVector(150, 100), createVector(-2, 0), 1, 'green'))
+    // entities.push(new Entity(createVector(50, 100), createVector(4,0), 1, 'red'))
+    // entities.push(new Entity(createVector(100, 100), createVector(-2, 0), 1, 'blue'))
+    // entities.push(new Entity(createVector(150, 100), createVector(-2, 0), 1, 'green'))
     // // entities.push(new Entity(createVector(120, 20), createVector(2, 0), 10, 'yellow'))
-    // for (let i =0; i < 16; i++){
-    //     const color = getRandomColor()
-    //     entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2), random(-2, 2)), 70,  color))
-    // }
+    for (let i =0; i < 16; i++){
+        const color = getRandomColor()
+        entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2), random(-2, 2)), 70,  color))
+    }
     gravity = createVector(0.00, 0.5)
     // const u1 = createVector(1, 0)
     // const u2 = createVector(0, 0)
@@ -181,20 +181,25 @@ function resolveCollision(e1: Entity, e2: Entity) {
 }
 
 const wallCollision  =  (entity: Entity)=>{
-    if (entity.pos.x  < 0){
-        entity.pos.x = Width - entity.pos.x
-    }else{
-        if (entity.pos.x > Width){
-            entity.pos.x = entity.pos.x - Width
-        }
+    let horizontal = createVector(1,0);
+    let vertical = createVector(0,1);
+    if (entity.pos.x  <= entity.rad){
+        entity.vel.reflect(horizontal)
+        entity.pos.x = entity.rad
     }
-    if (entity.pos.y  < 0){
-        entity.pos.y = Height - entity.pos.y
-    }else{
-        if (entity.pos.y > Height){
-            entity.pos.y = entity.pos.y - Height
-        }
+    if (entity.pos.x  >= Width - entity.rad){
+        entity.vel.reflect(horizontal)
+        entity.pos.x = Width - entity.rad
     }
+    if (entity.pos.y  <= entity.rad){
+        entity.vel.reflect(vertical)
+        entity.pos.y =  entity.rad
+    }
+    if (entity.pos.y  >= Height-entity.rad){
+        entity.vel.reflect(vertical)
+        entity.pos.y =  Height - entity.rad
+    }
+
 
 }
 
@@ -241,6 +246,7 @@ function draw() {
         }
         text(round(totMomemtum.x), 10, 10)
         text(round(totMomemtum.y), 10, 50)
+        text(round(totMomemtum.mag()), 10, 70)
 
 
         // console.log("line", dir, entity.pos, endPoint)
