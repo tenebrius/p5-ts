@@ -34,7 +34,7 @@ function setup() {
     for (let i =0; i < 40; i++){
         const color = getRandomColor()
         // entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-4, 4), random(-4, 4)), 70,  color))
-        entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(), 10,  color))
+        entities.push(new Entity(createVector(random(0, Width), random(0, Height)),  createVector(random(-4, 4), random(-4, 4)), random(50,150),  color))
     }
     // gravity = createVector(0.00, 0.5)
     // const u1 = createVector(1, 0)
@@ -86,7 +86,7 @@ class Entity {
         this.pos = pos;
         this.mass = mass
         this.vel = vel
-        this.rad = 10//TWO_PI * (mass/50)
+        this.rad = TWO_PI * (mass/50)
         this.color = color
     }
 
