@@ -2,8 +2,8 @@ import {Vector} from 'p5'
 import {} from 'p5/global'
 
 let running = true
-const Width = 200
-const Height = 200
+const Width = 300
+const Height = 300
 const density = 0.02
 const friction = 0.003
 let isFiring = null
@@ -14,24 +14,28 @@ let gravity: Vector;
 const setRunning = (state) => {
     running = state
 }
+
+
 function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
     var color = '#';
-    for (var i = 0; i < 6; i++ ) {
+    for (var i = 0; i < 6; i++) {
         color += letters[Math.round(Math.random() * 15)];
     }
     return color;
 }
+
 function setup() {
     createCanvas(Width, Height);
-    entities.push(new Entity(createVector(50, 100), createVector(5,5), 1, 'red'))
-    entities.push(new Entity(createVector(100, 100), createVector(-5, 5), 1, 'blue'))
-    entities.push(new Entity(createVector(150, 100), createVector(-5, -5), 1, 'green'))
+    // entities.push(new Entity(createVector(50, 100), createVector(5,5), 1, 'red'))
+    // entities.push(new Entity(createVector(185.01487610988684, 21.036676830906814), createVector(6.792671907824161, -3.265687717330934), 10, 'blue'))
+    // entities.push(new Entity(createVector(184.61538461538464, 39.615384615384585), createVector(-2.692307692307692, -6.538461538461538), 1, 'green'))
     // // entities.push(new Entity(createVector(120, 20), createVector(2, 0), 10, 'yellow'))
-    // for (let i =0; i < 16; i++){
-    //     const color = getRandomColor()
-    //     entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-2, 2), random(-2, 2)), 70,  color))
-    // }
+    for (let i =0; i < 40; i++){
+        const color = getRandomColor()
+        // entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(random(-4, 4), random(-4, 4)), 70,  color))
+        entities.push(new Entity(createVector(random(0, Width), random(0, Height)), createVector(), 10,  color))
+    }
     // gravity = createVector(0.00, 0.5)
     // const u1 = createVector(1, 0)
     // const u2 = createVector(0, 0)
@@ -103,70 +107,74 @@ class Entity {
         stroke('black')
 
         // text(this.pos.x + "," + this.pos.y, this.pos.x, this.pos.y)
-        const momentum = Vector.mult(this.vel, this.mass)
-        const endpoint = Vector.add(this.pos, momentum)
+        // const momentum = Vector.mult(this.vel, this.mass)
+        // const endpoint = Vector.add(this.pos, momentum)
         // line(this.pos.x, this.pos.y, endpoint.x, endpoint.y)
         // text(momentum.x + "," + momentum.y, endpoint.x, endpoint.y)
     }
 }
 
 function applyFriction(entity: Entity) {
-
     entity.applyForce(Vector.normalize(entity.vel).mult(-1).setMag(0.01))
-
 }
-
+function applyGravity(entity: Entity) {
+    entity.applyForce(createVector(0,10))
+}
 let collisionCount = 1
 
 let oldCol = new Date().getTime()
+
 function resolveCollision(e1: Entity, e2: Entity) {
     collisionCount = collisionCount + 1
     let newCol = new Date().getTime();
     oldCol = newCol
-    let dir = Vector.sub(e1.pos, e2.pos)
-    const dist = dir.copy()
-    const curDist = dist.mag()
-    const correctDist = e1.rad + e2.rad
-    if (curDist < correctDist) {
-        const errorDist = curDist - correctDist
-        console.log("errorDist" ,errorDist)
-        e2.pos.add(dist.copy().setMag(errorDist/2))
-        e1.pos.sub(dist.copy().setMag(errorDist/2))
-    }
-    dir = Vector.sub(e1.pos, e2.pos)
-    // line(e1.pos.x, e1.pos.y, e1.pos.x + dir.x, e1.pos.y + dir.y)
-    const theta1 = abs(dir.angleBetween(e1.vel))
-    const theta2 = abs(dir.angleBetween(e2.vel))
+
+
+    let dir = Vector.sub(e2.pos, e1.pos)
+
+    let theta1 = dir.angleBetween(e1.vel)
+    let theta2 = dir.angleBetween(Vector.mult(e2.vel, -1))
+    // if (theta1 > HALF_PI) theta1 = PI - theta1
+    // if (theta2 > HALF_PI) theta2 = PI - theta2
     // console.log(degrees(theta1), degrees(theta2))
     // console.log(theta)
     const olde1Vel = e1.vel + "x"
     const olde2Vel = e2.vel + "x"
     let momentum1 = Vector.mult(e1.vel, e1.mass);
     let momentum2 = Vector.mult(e2.vel, e2.mass);
-    const force1 = abs(momentum1.mag() * cos(theta1))
-    const force2 = abs(momentum2.mag() * cos(theta2))
-    const mTot = Vector.add(momentum2, momentum1)
+    const force1Mag = momentum1.mag() * cos(theta1)
+    const force2Mag = momentum2.mag() * cos(theta2)
+
     // const force  = abs(mTot.mag() * cos(theta))
-    const force  = force1 + force2
+    // let force1Dir = theta1 > -HALF_PI && theta1 < HALF_PI ? 1 : -1;
+    // let force2Dir = theta2 > -HALF_PI && theta2 < HALF_PI ? 1 : -1;
+    // let force1Final = (force1Mag * force1Dir)
+    // let force2Final = (force2Mag * force2Dir)
+    // let forceFinal= force1Final + force2Final
+    let forceFinal= force1Mag + force2Mag
+    const force = dir.copy().setMag(forceFinal)
+
+
+
     // console.log("force", force)
     // const mag1 = abs(Vector.mult(momentum1, cos(theta1)).mag())
     // const mag2 = abs(Vector.mult(momentum2 , cos(theta2)).mag())
     // console.log("mag", mag)
 
-    dir.setMag(force)
+    // dir.setMag(force.mag())
     // console.log("dir", dir, dir.mag())
     // console.log("momentum", momentum)
     // console.log(dir)
     // console.log("----------------------")
-    let totalVelBefore = e1.vel.y + e2.vel.x;
+    // let totalVelBefore = e1.vel.y + e2.vel.x;
     // console.log(e1.vel.x, e2.vel.x, totalVelBefore)
-    e1.applyForce(dir)
-    e2.applyForce(Vector.mult(dir, -1))
-    let totalVelAfter = e1.vel.y + e2.vel.x;
+    e1.applyForce(Vector.mult(force, -1))
+    e2.applyForce(force)
+    // let totalVelAfter = e1.vel.y + e2.vel.x;
     // console.log(e1.vel.x, e2.vel.x, totalVelAfter)
-    if (round(totalVelAfter) != round(totalVelBefore)){
-        const f = 1
-    }
+    // if (round(totalVelAfter) != round(totalVelBefore)) {
+    //     const f = 1
+    // }
     // const endpoint = Vector.add(e1.pos, dir)
     // stroke('red');
     // line(e1.pos.x, e1.pos.y, e1.pos.x + dir.x, e1.pos.y + dir.y)
@@ -185,24 +193,24 @@ function resolveCollision(e1: Entity, e2: Entity) {
     // e2.vel = v2;
 }
 
-const wallCollision  =  (entity: Entity)=>{
-    let horizontal = createVector(1,0);
-    let vertical = createVector(0,1);
-    if (entity.pos.x  <= entity.rad){
+const wallCollision = (entity: Entity) => {
+    let horizontal = createVector(1, 0);
+    let vertical = createVector(0, 1);
+    if (entity.pos.x <= entity.rad) {
         entity.vel.reflect(horizontal)
         entity.pos.x = entity.rad
     }
-    if (entity.pos.x  >= Width - entity.rad){
+    if (entity.pos.x >= Width - entity.rad) {
         entity.vel.reflect(horizontal)
         entity.pos.x = Width - entity.rad
     }
-    if (entity.pos.y  <= entity.rad){
+    if (entity.pos.y <= entity.rad) {
         entity.vel.reflect(vertical)
-        entity.pos.y =  entity.rad
+        entity.pos.y = entity.rad
     }
-    if (entity.pos.y  >= Height-entity.rad){
+    if (entity.pos.y >= Height - entity.rad) {
         entity.vel.reflect(vertical)
-        entity.pos.y =  Height - entity.rad
+        entity.pos.y = Height - entity.rad
     }
 
 
@@ -230,28 +238,20 @@ function mouseMoved() {
 }
 
 let drawLoop = 0
+let firstDraw = false
+
 function draw() {
 
     if (running) {
         background(220);
-        for (let x = 0 ; x < Width ; x = x+10){
+        for (let x = 0; x < Width; x = x + 10) {
             stroke('#fefefe')
             line(x, 0, x, Height)
             stroke('black')
         }
-        let totMomemtum = createVector()
-        for (const entity of entities) {
+        let totMomemtum = 0
 
-            entity.draw()
-            entity.tick()
-            // applyFriction(entity)
-            wallCollision(entity)
-            totMomemtum = totMomemtum.add(Vector.mult(entity.vel, 10))
-            // applyGravity(entity)
-        }
-        text(round(totMomemtum.x), 10, 10)
-        text(round(totMomemtum.y), 10, 50)
-        text(round(totMomemtum.mag()), 10, 70)
+
 
 
         // console.log("line", dir, entity.pos, endPoint)
@@ -261,27 +261,53 @@ function draw() {
         for (const entity of entities) {
             for (const target of entities) {
                 if (target != entity) {
-                    const checked = pairs.some(([e1, e2])=>{
-                        return (e1===target && e2===entity) || (e2===target && e1===entity)
+                    const checked = pairs.some(([e1, e2]) => {
+                        return (e1 === target && e2 === entity) || (e2 === target && e1 === entity)
                     })
+
+
                     if (!checked) {
                         if (checkCollision(target, entity)) {
                             pairs.push([target, entity])
-                            resolveCollision(target, entity)
+                            if (!firstDraw) {
+                                resolveCollision(target, entity)
+                            }
                             // running = false
                         }
-                    }else{
+                    } else {
                     }
                 }
+            }
+        }
+        for (const entity of entities) {
+
+            entity.draw()
+            // for (const target of entities) {
+            //     const e1 = entity;
+            //     const e2 = target
+            //     let dir = Vector.sub(e2.pos, e1.pos)
+            //     stroke(e1.color)
+            //     line(e1.pos.x, e1.pos.y, e1.pos.x + dir.x, e1.pos.y + dir.y)
+            // }
+            if (!firstDraw) {
+                entity.tick()
+                // applyFriction(entity)
+                // applyGravity(entity)
+
+                wallCollision(entity)
+                totMomemtum = totMomemtum + (entity.vel.mag() * entity.mass)
             }
         }
 
         if (isFiring && firePos) {
             line(firePos.x, firePos.y, isFiring.pos.x, isFiring.pos.y)
         }
-
+        // text(round(totMomemtum.x), 10, 10)
+        // text(round(totMomemtum.y), 10, 50)
+        text(round(totMomemtum), 10, 70)
     }
 
+    firstDraw = false
 }
 
 //
@@ -295,14 +321,25 @@ function draw() {
 // };
 //
 
-const checkCollision = (entity1: Entity, entity2: Entity) => {
-    const mag = Vector.sub(entity1.pos, entity2.pos).mag()
+const checkCollision = (e1: Entity, e2: Entity) => {
+    const mag = Vector.sub(e1.pos, e2.pos).mag()
     // text(mag, 12, 10)
     // text(entity1.rad + entity2.rad, 12, 50)
 
     // console.log(entity1.rad + entity2.rad)
-    if (mag < (entity1.rad + entity2.rad)) {
+    if (mag <= (e1.rad + e2.rad)) {
         // text('collisiton', 100, 100)
+        let dir = Vector.sub(e1.pos, e2.pos)
+        const dist = dir.copy()
+        const curDist = dist.mag()
+        const correctDist = e1.rad + e2.rad
+        if (curDist < correctDist) {
+            const errorDist = curDist - correctDist
+            // console.log("errorDist", errorDist)
+            e2.pos.add(dist.copy().setMag(errorDist / 2))
+            e1.pos.sub(dist.copy().setMag(errorDist / 2))
+        }
+
         return true
     }
 };
